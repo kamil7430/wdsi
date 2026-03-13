@@ -1,0 +1,1 @@
+https://pl.wikipedia.org/wiki/Wsp%C3%B3%C5%82czynnik_korelacji
