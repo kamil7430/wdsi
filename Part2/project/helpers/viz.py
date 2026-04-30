@@ -102,12 +102,11 @@ def render_episode_frames(
     os.makedirs(out_dir, exist_ok=True)
     saved = []
 
-    for t, (s, a_intended, a_exec, r, s_next, done) in enumerate(trajectory):
+    for t, (s, a_intended, a_exec, r, s_next, done, gr, gc) in enumerate(trajectory):
         r_next, c_next = env.state_to_row_column(s_next)
 
         fig, ax = _base_grid_figure(env, title=f"t={t}, r={r:.2f}, done={done}")
         sr, sc = env.start_row_column
-        gr, gc = env.goal_row_column
         ax.text(sc, sr, "S", ha="center", va="center", fontsize=14, fontweight="bold")
         ax.text(gc, gr, "G", ha="center", va="center", fontsize=14, fontweight="bold")
 
@@ -199,8 +198,9 @@ def run_episode(
             a = int(np.argmax(Q[s]))
 
         s_next, r, done, info = env.step(a)
+        gr, gc = env.goal_row_column
 
-        traj.append((s, a, info.get("executed_action", a), r, s_next, done))
+        traj.append((s, a, info.get("executed_action", a), r, s_next, done, gr, gc))
         total_return += float(r)
         s = s_next
         steps += 1

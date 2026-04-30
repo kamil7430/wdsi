@@ -2,6 +2,7 @@ from __future__ import annotations
 from collections import defaultdict
 import random
 from typing import Optional, Tuple
+import numpy as np
 
 
 # Action mapping: 0=Up, 1=Right, 2=Down, 3=Left
@@ -44,6 +45,7 @@ class SlipperyGridWorld:
         max_steps: Optional[int] = None,
         seed: Optional[int] = None,
         obstacles: list[Tuple[int, int]] = [],
+        goal_running_away: bool = False,
     ):
         assert rows > 0 and cols > 0
         assert 0.0 <= slip_prob <= 1.0
@@ -52,6 +54,7 @@ class SlipperyGridWorld:
         self.cols = cols
         self.start_row_column = start
         self.goal_row_column = goal
+        self._start_goal_row_column = goal
         self.slip_prob = slip_prob
         self.step_reward = step_reward
         self.goal_reward = goal_reward
@@ -65,6 +68,7 @@ class SlipperyGridWorld:
         self.nA = len(ACTIONS)
 
         self._obstacles = obstacles
+        self._goal_running_away = goal_running_away
 
     # --- helpers ---
     def row_column_to_state(self, r: int, c: int) -> int:
@@ -97,6 +101,22 @@ class SlipperyGridWorld:
         nr, nc = self._apply_action(r, c, action)
         return self.row_column_to_state(nr, nc)
 
+    def _goal_runaway(self):
+        if self._steps % 2 == 0:
+            return
+
+        r, c = self._agent_row_column
+        gr, gc = self.goal_row_column
+        best = None
+        for a in ACTIONS:
+            ngr, ngc = self._apply_action(gr, gc, a)
+            if (ngr, ngc) != (gr, gc):
+                hypot = np.sqrt((ngr - r)**2 + (ngc - c)**2)
+                if best is None or hypot > best[2]:
+                    best = (ngr, ngc, hypot)
+        if best is not None:
+            self.goal_row_column = best[0], best[1]
+
     # --- public API ---
     def reset(self, start: Optional[Tuple[int, int]] = None) -> int:
         """Reset environment to start state specified (optional).
@@ -112,6 +132,7 @@ class SlipperyGridWorld:
         if start is not None:
             self.start_row_column = start
         self._agent_row_column = self.start_row_column
+        self.goal_row_column = self._start_goal_row_column
         self._steps = 0
         return self.row_column_to_state(*self._agent_row_column)
 
@@ -172,16 +193,11 @@ class SlipperyGridWorld:
 
         reward = self.goal_reward if (self._agent_row_column == self.goal_row_column) else self.step_reward
 
+        if not done:
+            self._goal_runaway()
+
         info = {"intended_action": intended, "executed_action": executed, "steps": self._steps}
         return self.row_column_to_state(*self._agent_row_column), reward, done, info
-
-    def set_goal(self, goal: Tuple[int, int]):
-        """Specify the goal state
-
-        Args:
-            goal (Tuple[int, int]): (row, column)
-        """
-        self.goal_row_column = goal
 
     def reward(self, state: int, action: int, next_state: int) -> float:
         """Return the reward R(s, a, s') for a transition.
@@ -200,7 +216,9 @@ class SlipperyGridWorld:
             return 0.0
         if self.state_to_row_column(next_state) == self.goal_row_column:
             return self.goal_reward
-        return self.step_reward
+        r, c = self._agent_row_column
+        gr, gc = self.goal_row_column
+        return -0.1 * np.sqrt((gr - r) ** 2 + (gc - c) ** 2)
 
     def set_size(self, rows: int, cols: int, start: Optional[Tuple[int, int]] = None, goal: Optional[Tuple[int, int]] = None) -> None:
         """Set enviroment grid size.
