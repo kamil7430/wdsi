@@ -82,7 +82,7 @@ class SlipperyGridWorld:
     def _apply_action(self, r: int, c: int, a: int) -> Tuple[int, int]:
         dr, dc = ACTION_TO_DELTA[a]
         nr, nc = r + dr, c + dc
-        if self._in_bounds(nr, nc):
+        if self._in_bounds(nr, nc) and not self._is_obstacle(nr, nc):
             return nr, nc
         return r, c
 
