@@ -43,15 +43,16 @@ def plot_policy(
 
     sr, sc = env.start_row_column
     gr, gc = env.goal_row_column
-    ax.text(sc, sr, "S", ha="center", va="center", fontsize=14, fontweight="bold")
     ax.text(gc, gr, "G", ha="center", va="center", fontsize=14, fontweight="bold")
 
     for s in range(env.num_states):
         r, c = env.state_to_row_column(s)
-        if (r, c) in [env.start_row_column, env.goal_row_column]:
+        if (r, c) == env.goal_row_column:
             continue
         a = int(policy[s])
         env_modifier = ""
+        if (r, c) == env.start_row_column:
+            env_modifier += "S"
         if env.is_obstacle(r, c):
             env_modifier += "W"
         if env.is_teleporter_start(r, c):
