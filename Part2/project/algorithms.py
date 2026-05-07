@@ -127,7 +127,7 @@ def dyna_q():
 # Evaluation
 def evaluate_V(V):
     pi = greedy_policy_from_V(V, env, gamma)
-    evaluate(env, policy=pi, n_episodes=n_val_episodes, seed=random_seed)
+    return evaluate(env, policy=pi, n_episodes=n_val_episodes, seed=random_seed)
 
 def evaluate_Q(Q):
     V = np.array([np.max(actions) for actions in Q])
