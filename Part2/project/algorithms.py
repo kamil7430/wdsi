@@ -15,7 +15,7 @@ random_seed = 2137
 step_reward = -1
 goal_reward = 10
 
-max_number_iterations = 1000
+# max_number_iterations = 1000
 threshold = 1e-5
 gamma = 0.99
 eps = 0.01
@@ -43,7 +43,7 @@ def eps_greedy(Q, Pi):
                 Pi[x][a] = eps / len(ACTIONS)
 
 # Algorithms
-def value_iteration():
+def value_iteration(max_number_iterations):
     V = np.full(num_states, 2137.0)
     V = np.array([0 if env.is_terminal_state(s) else V[s] for s in range(num_states)])
     env.reset()
@@ -60,7 +60,7 @@ def value_iteration():
 
     return evaluate_V(V)
 
-def q_learning():
+def q_learning(max_number_iterations):
     Q = [[0 for j in range(len(ACTIONS))] for i in range(num_states)]
     Pi = [[1 / len(ACTIONS) for j in range(len(ACTIONS))] for i in range(num_states)]
 
@@ -77,7 +77,7 @@ def q_learning():
 
     return evaluate_Q(Q)
 
-def sarsa():
+def sarsa(max_number_iterations):
     Q = [[0 for j in range(len(ACTIONS))] for i in range(num_states)]
     Pi = [[1/len(ACTIONS) for j in range(len(ACTIONS))] for i in range(num_states)]
 
@@ -97,7 +97,7 @@ def sarsa():
 
     return evaluate_Q(Q)
 
-def dyna_q():
+def dyna_q(max_number_iterations):
     Q = [[0 for j in range(len(ACTIONS))] for i in range(num_states)]
     Pi = [[1 / len(ACTIONS) for j in range(len(ACTIONS))] for i in range(num_states)]
     model = {}
