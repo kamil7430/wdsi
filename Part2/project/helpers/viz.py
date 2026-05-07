@@ -8,6 +8,8 @@ import imageio.v2 as imageio
 from helpers.env import ACTIONS, SlipperyGridWorld
 
 ARROWS = {0: "↑", 1: "→", 2: "↓", 3: "←"}
+WIND_ARROWS = ["⮙", "⮚", "⮛", "⮘"]
+
 def _base_grid_figure(env, title: str = ""):
     fig, ax = plt.subplots()
     ax.set_aspect("equal")
@@ -58,7 +60,7 @@ def plot_policy(
             env_modifier += "TE"
         wind_dir = env.wind_direction(r, c)
         if wind_dir is not None:
-            env_modifier += str(wind_dir)
+            env_modifier += WIND_ARROWS[wind_dir]
         ax.text(c, r, ARROWS[a] + env_modifier, ha="center", va="center", fontsize=14)
 
     if filename:
