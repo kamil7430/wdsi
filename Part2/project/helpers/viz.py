@@ -49,7 +49,14 @@ def plot_policy(
         if (r, c) in [env.start_row_column, env.goal_row_column]:
             continue
         a = int(policy[s])
-        ax.text(c, r, ARROWS[a], ha="center", va="center", fontsize=14)
+        env_modifier = ""
+        if env.is_obstacle(r, c):
+            env_modifier += "W"
+        if env.is_teleporter_start(r, c):
+            env_modifier += "TS"
+        if env.is_teleporter_end(r, c):
+            env_modifier += "TE"
+        ax.text(c, r, ARROWS[a] + env_modifier, ha="center", va="center", fontsize=14)
 
     if filename:
         fig.savefig(filename, dpi=200, bbox_inches="tight")

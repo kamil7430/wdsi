@@ -44,6 +44,7 @@ class SlipperyGridWorld:
         max_steps: Optional[int] = None,
         seed: Optional[int] = None,
         obstacles: list[Tuple[int, int]] = [],
+        teleporters: list[Tuple[Tuple[int, int], Tuple[int, int]]] = [],
     ):
         assert rows > 0 and cols > 0
         assert 0.0 <= slip_prob <= 1.0
@@ -65,6 +66,7 @@ class SlipperyGridWorld:
         self.nA = len(ACTIONS)
 
         self._obstacles = obstacles
+        self._teleporters = teleporters
 
     # --- helpers ---
     def row_column_to_state(self, r: int, c: int) -> int:
@@ -76,15 +78,34 @@ class SlipperyGridWorld:
     def _in_bounds(self, r: int, c: int) -> bool:
         return 0 <= r < self.rows and 0 <= c < self.cols
 
-    def _is_obstacle(self, r: int, c: int) -> bool:
+    def is_obstacle(self, r: int, c: int) -> bool:
         return (r, c) in self._obstacles
+        
+    def teleporter_end(self, r: int, c: int) -> Tuple[int, int] | None:
+        for (s, e) in self._teleporters:
+            if s == (r, c):
+                return e
+
+    def is_teleporter_start(self, r: int, c: int) -> bool:
+        return self.teleporter_end(r, c) is not None
+
+    def is_teleporter_end(self, r: int, c: int) -> bool:
+        for (s, e) in self._teleporters:
+            if e == (r, c):
+                return True
+        return False
 
     def _apply_action(self, r: int, c: int, a: int) -> Tuple[int, int]:
         dr, dc = ACTION_TO_DELTA[a]
         nr, nc = r + dr, c + dc
-        if self._in_bounds(nr, nc) and not self._is_obstacle(nr, nc):
-            return nr, nc
-        return r, c
+        if not self._in_bounds(nr, nc):
+            return r, c
+        if self.is_obstacle(nr, nc):
+            return r, c
+        teleporter_end = self.teleporter_end(nr, nc)
+        if teleporter_end is not None:
+            return teleporter_end
+        return nr, nc
 
     def _sample_action_with_slip(self, intended: int) -> int:
         if self.rng.random() >= self.slip_prob:
