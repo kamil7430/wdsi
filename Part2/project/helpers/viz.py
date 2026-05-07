@@ -8,7 +8,7 @@ import imageio.v2 as imageio
 from helpers.env import ACTIONS, SlipperyGridWorld
 
 ARROWS = {0: "↑", 1: "→", 2: "↓", 3: "←"}
-WIND_ARROWS = ["⮙", "⮚", "⮛", "⮘"]
+WIND_ARROWS = ["\u25B3", "\u25B7", "\u25BD", "\u25C1"]
 
 def _base_grid_figure(env, title: str = ""):
     fig, ax = plt.subplots()
