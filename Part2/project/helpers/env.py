@@ -45,6 +45,7 @@ class SlipperyGridWorld:
         seed: Optional[int] = None,
         obstacles: list[Tuple[int, int]] = [],
         teleporters: list[Tuple[Tuple[int, int], Tuple[int, int]]] = [],
+        wind: list[Tuple[int, int, int]] = [], # y, x, direction
     ):
         assert rows > 0 and cols > 0
         assert 0.0 <= slip_prob <= 1.0
@@ -67,6 +68,7 @@ class SlipperyGridWorld:
 
         self._obstacles = obstacles
         self._teleporters = teleporters
+        self._wind = wind
 
     # --- helpers ---
     def row_column_to_state(self, r: int, c: int) -> int:
@@ -85,6 +87,7 @@ class SlipperyGridWorld:
         for (s, e) in self._teleporters:
             if s == (r, c):
                 return e
+        return None
 
     def is_teleporter_start(self, r: int, c: int) -> bool:
         return self.teleporter_end(r, c) is not None
@@ -95,9 +98,19 @@ class SlipperyGridWorld:
                 return True
         return False
 
+    def wind_direction(self, r: int, c: int) -> int | None:
+        for (y, x, direct) in self._wind:
+            if (y, x) == (r, c):
+                return direct
+        return None
+
     def _apply_action(self, r: int, c: int, a: int) -> Tuple[int, int]:
         dr, dc = ACTION_TO_DELTA[a]
         nr, nc = r + dr, c + dc
+        wind_dir = self.wind_direction(r, c)
+        if wind_dir is not None and wind_dir in _perpendicular_actions(a):
+            wind_r, wind_c = ACTION_TO_DELTA[wind_dir]
+            nr, nc = nr + wind_r, nc + wind_c
         if not self._in_bounds(nr, nc):
             return r, c
         if self.is_obstacle(nr, nc):

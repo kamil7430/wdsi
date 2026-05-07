@@ -56,6 +56,9 @@ def plot_policy(
             env_modifier += "TS"
         if env.is_teleporter_end(r, c):
             env_modifier += "TE"
+        wind_dir = env.wind_direction(r, c)
+        if wind_dir is not None:
+            env_modifier += str(wind_dir)
         ax.text(c, r, ARROWS[a] + env_modifier, ha="center", va="center", fontsize=14)
 
     if filename:
