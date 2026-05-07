@@ -20,7 +20,7 @@ threshold = 1e-5
 gamma = 0.99
 eps = 0.01
 alpha = 0.1
-n = 25
+# n = 25
 
 max_steps_in_env = 40
 n_val_episodes = 50
@@ -43,7 +43,7 @@ def eps_greedy(Q, Pi):
                 Pi[x][a] = eps / len(ACTIONS)
 
 # Algorithms
-def value_iteration(max_number_iterations):
+def value_iteration(max_number_iterations, n):
     V = np.full(num_states, 2137.0)
     V = np.array([0 if env.is_terminal_state(s) else V[s] for s in range(num_states)])
     env.reset()
@@ -60,7 +60,7 @@ def value_iteration(max_number_iterations):
 
     return evaluate_V(V)
 
-def q_learning(max_number_iterations):
+def q_learning(max_number_iterations, n):
     Q = [[0 for j in range(len(ACTIONS))] for i in range(num_states)]
     Pi = [[1 / len(ACTIONS) for j in range(len(ACTIONS))] for i in range(num_states)]
 
@@ -77,7 +77,7 @@ def q_learning(max_number_iterations):
 
     return evaluate_Q(Q)
 
-def sarsa(max_number_iterations):
+def sarsa(max_number_iterations, n):
     Q = [[0 for j in range(len(ACTIONS))] for i in range(num_states)]
     Pi = [[1/len(ACTIONS) for j in range(len(ACTIONS))] for i in range(num_states)]
 
@@ -97,7 +97,7 @@ def sarsa(max_number_iterations):
 
     return evaluate_Q(Q)
 
-def dyna_q(max_number_iterations):
+def dyna_q(max_number_iterations, n):
     Q = [[0 for j in range(len(ACTIONS))] for i in range(num_states)]
     Pi = [[1 / len(ACTIONS) for j in range(len(ACTIONS))] for i in range(num_states)]
     model = {}

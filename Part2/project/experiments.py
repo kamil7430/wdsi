@@ -14,7 +14,7 @@ def iteration_count_experiment():
 
         for it in iters:
             print("->", it)
-            evaluation = alg(it)
+            evaluation = alg(it, 25)
             success_rate.append(evaluation["success_rate"])
 
         plt.plot(
@@ -30,4 +30,33 @@ def iteration_count_experiment():
     plt.ylabel("Success rate")
     plt.savefig("iteration_count.png")
 
+def dyna_q_n_to_iterations():
+    plt.clf()
+
+    ns = [1, 2, 5, 10, 20, 50, 100, 200, 500]
+    iters = []
+    for n in ns:
+        print("n:", n)
+        for i in range(100):
+            print("->", i)
+            evalu = algorithms.dyna_q(i, n)
+            success_rate = evalu["success_rate"]
+            if success_rate >= 0.99:
+                iters.append(i)
+                break
+        else:
+            print(":(")
+
+    plt.plot(ns, iters)
+    plt.scatter(
+        x=ns,
+        y=iters,
+    )
+    plt.grid(True)
+    plt.xscale("log")
+    plt.xlabel("Value of n")
+    plt.ylabel("Iteration count")
+    plt.savefig("dyna_q_n_to_iterations.png")
+
 # iteration_count_experiment()
+# dyna_q_n_to_iterations()
