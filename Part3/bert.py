@@ -103,7 +103,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 embeddings = model.encode(sentences)
 
-query = "64 gb vram, cheap."
+query = "64 gb vram, price in range 1500 cents per hour, from nvidia."
 
 similarities = model.similarity(embeddings, model.encode(query))
 i = int(np.argmax(similarities))
