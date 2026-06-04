@@ -1,100 +1,6 @@
 import json
-import re
-import pl_core_news_sm
 
-# ładowanie lokalnego modelu dla języka polskiego
-nlp = pl_core_news_sm.load()
-
-# definiowanie reguł NLP dla parametrów GPU
-ruler = nlp.add_pipe("entity_ruler", before="ner")
-
-patterns = [
-    # wzorzec dla vram
-    {
-        "label": "VRAM",
-        "pattern": [
-            {"TEXT": {"REGEX": r"^\d+$"}},
-            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt",
-                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram"]}},
-        ],
-    },
-
-    # wzorzec dla producenta/technologii
-    {
-        "label": "BRAND",
-        "pattern": [
-            {"LOWER": {"IN": ["nvidia", "nvidii", "nvidię", "cuda", "cudę", "cudą", "amd", "intel"]}},
-        ],
-    },
-
-    # wzorce dla budżetu
-    {
-        "label": "LOW_BUDGET",
-        "pattern": [
-            {"LEMMA": {"IN": ["tani", "budżetowy", "niedrogi", "ekonomiczny"]}},
-        ],
-    },
-    {
-        "label": "LOW_BUDGET",
-        "pattern": [
-            {"LEMMA": "niski"},
-            {"LEMMA": "cena"},
-        ],
-    }
-]
-
-ruler.add_patterns(patterns)
-
-
-def add_spaces_around_numbers(string: str) -> str:
-    new_str = string[0]
-    for i in range(1, len(string)):
-        if string[i-1].isalpha() and string[i].isdigit():
-            new_str += ' '
-        if string[i-1].isdigit() and string[i].isalpha():
-            new_str += ' '
-        new_str += string[i]
-    return new_str
-
-def extract_gpu_criteria(user_prompt: str) -> dict:
-    # preprocessing inputu
-    user_prompt = add_spaces_around_numbers(user_prompt)
-    user_prompt = user_prompt.lower()
-
-    # przepuszczenie inputu użytkownika przez NLP spaCy
-    doc = nlp(user_prompt)
-
-    extracted = {
-        "min_vram_gb": None,
-        "brand": None,
-        "is_cheap": False
-    }
-
-    # przejrzenie rozpoznanych przez spaCy encji
-    for ent in doc.ents:
-        if ent.label_ == "VRAM":
-            digits = [int(s) for s in ent.text.split() if s.isdigit()]
-            print(digits)
-            if digits:
-                if digits[0] >= 1000:
-                    extracted["min_vram_gb"] = digits[0] // 1000
-                else:
-                    extracted["min_vram_gb"] = digits[0]
-
-        elif ent.label_ == "BRAND":
-            val = ent.text.lower()
-            if val in ["nvidia", "cuda"]:
-                extracted["brand"] = "nvidia"
-            elif val == "amd":
-                extracted["brand"] = "amd"
-            elif val == "intel":
-                extracted["brand"] = "intel"
-
-        elif ent.label_ == "LOW_BUDGET":
-            extracted["is_cheap"] = True
-
-    return extracted
-
+import model
 
 if __name__ == "__main__":
     TEST_SENTENCES = [
@@ -141,7 +47,7 @@ if __name__ == "__main__":
 
     for q in TEST_SENTENCES:
         print(f"\nWejściowy prompt: '{q}'")
-        result_struct = extract_gpu_criteria(q)
+        result_struct = model.extract_gpu_criteria(q)
 
         print("Wyciągnięta struktura danych (AI Struct):")
         print(json.dumps(result_struct, indent=2, ensure_ascii=False))
