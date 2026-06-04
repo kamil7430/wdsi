@@ -14,7 +14,8 @@ patterns = [
         "label": "VRAM",
         "pattern": [
             {"TEXT": {"REGEX": r"^\d+$"}},
-            {"LEMMA": {"IN": ["gb", "giga", "gigabajt", "vram", "ram"]}},
+            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt",
+                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram"]}},
         ],
     },
 
@@ -22,7 +23,7 @@ patterns = [
     {
         "label": "BRAND",
         "pattern": [
-            {"LEMMA": {"IN": ["nvidia", "cuda", "amd", "intel"]}},
+            {"LOWER": {"IN": ["nvidia", "nvidii", "nvidię", "cuda", "cudę", "cudą", "amd", "intel"]}},
         ],
     },
 
@@ -55,10 +56,12 @@ def add_spaces_around_numbers(string: str) -> str:
         new_str += string[i]
     return new_str
 
-# 3. FUNKCJA EKSTRAKCJI CECH (Nasz "Parser AI")
 def extract_gpu_criteria(user_prompt: str) -> dict:
+    # preprocessing inputu
     user_prompt = add_spaces_around_numbers(user_prompt)
+    user_prompt = user_prompt.lower()
 
+    # przepuszczenie inputu użytkownika przez NLP spaCy
     doc = nlp(user_prompt)
 
     extracted = {
@@ -67,16 +70,16 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
         "is_cheap": False
     }
 
-    # Przechodzimy przez rozpoznane przez spaCy encje (entities)
+    # przejrzenie rozpoznanych przez spaCy encji
     for ent in doc.ents:
         if ent.label_ == "VRAM":
-            # Wyciągamy samą liczbę z tekstu encji (np. z "24 GB" robi 24)
             digits = [int(s) for s in ent.text.split() if s.isdigit()]
-            if not digits:  # obsługa przypiętego tekstu np. "24gb"
-                match = re.search(r'\d+', ent.text)
-                if match: digits = [int(match.group())]
+            print(digits)
             if digits:
-                extracted["min_vram_gb"] = digits[0]
+                if digits[0] >= 1000:
+                    extracted["min_vram_gb"] = digits[0] // 1000
+                else:
+                    extracted["min_vram_gb"] = digits[0]
 
         elif ent.label_ == "BRAND":
             val = ent.text.lower()
@@ -84,8 +87,10 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
                 extracted["brand"] = "nvidia"
             elif val == "amd":
                 extracted["brand"] = "amd"
+            elif val == "intel":
+                extracted["brand"] = "intel"
 
-        elif ent.label_ == "BUDGET":
+        elif ent.label_ == "LOW_BUDGET":
             extracted["is_cheap"] = True
 
     return extracted
