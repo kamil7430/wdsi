@@ -1,4 +1,45 @@
+import sys
+
 import pl_core_news_lg
+
+LEMMAS_TO_NUMBERS = {
+    # 0 - 9
+    "zero": 0,
+    "jeden": 1,
+    "dwa": 2,
+    "trzy": 3,
+    "cztery": 4,
+    "pięć": 5,
+    "sześć": 6,
+    "siedem": 7,
+    "osiem": 8,
+    "dziewięć": 9,
+
+    # 10 - 19
+    "dziesięć": 10,
+    "jedenaście": 11,
+    "dwanaście": 12,
+    "trzynaście": 13,
+    "czternaście": 14,
+    "piętnaście": 15,
+    "szesnaście": 16,
+    "siedemnaście": 17,
+    "osiemnaście": 18,
+    "dziewiętnaście": 19,
+
+    # Dziesiątki
+    "dwadzieścia": 20,
+    "trzydzieści": 30,
+    "czterdzieści": 40,
+    "pięćdziesiąt": 50,
+    "sześćdziesiąt": 60,
+    "siedemdziesiąt": 70,
+    "osiemdziesiąt": 80,
+    "dziewięćdziesiąt": 90,
+
+    # 100
+    "sto": 100,
+}
 
 # ładowanie lokalnego modelu dla języka polskiego
 nlp = pl_core_news_lg.load()
@@ -26,12 +67,22 @@ entity_ruler.add_patterns([
                               "gigabajta"]}},
         ],
     },
+    {
+        "label": "VRAM_TEXT",
+        "pattern": [
+            {"LEMMA": {"IN": list(LEMMAS_TO_NUMBERS.keys())}},
+            {"LEMMA": {"IN": list(LEMMAS_TO_NUMBERS.keys())}, "OP": "?"},
+            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt",
+                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram", "megabajta",
+                              "gigabajta"]}},
+        ],
+    },
 
     # wzorzec dla producenta/technologii
     {
         "label": "BRAND",
         "pattern": [
-            {"LOWER": {"IN": ["nvidia", "nvidii", "nvidię", "cuda", "cudę", "cudą", "amd", "intel"]}},
+            {"LOWER": {"IN": ["nvidia", "nvidii", "nvidię", "cuda", "cudę", "cudą", "amd", "intel", "intela"]}},
         ],
     },
 
@@ -39,13 +90,14 @@ entity_ruler.add_patterns([
     {
         "label": "LOW_BUDGET",
         "pattern": [
-            {"LEMMA": {"IN": ["tać", "tani", "budżetowy", "niedrogi", "ekonomiczny"]}},
+            {"LEMMA": {"IN": ["tać", "tani", "taniocha", "tanio", "tanie", "najtańszy", "budżetowy", "niedrogi",
+                              "ekonomiczny"]}},
         ],
     },
     {
         "label": "LOW_BUDGET",
         "pattern": [
-            {"LEMMA": "niski"},
+            {"LEMMA": {"IN": ["niski", "dobry"]}},
             {"LEMMA": "cena"},
         ],
     }
@@ -85,6 +137,17 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
                     extracted["min_vram_gb"] = digits[0] // 1000
                 else:
                     extracted["min_vram_gb"] = digits[0]
+
+        elif ent.label_ == "VRAM_TEXT":
+            for lemma in ent.lemma_.split():
+                try:
+                    number = LEMMAS_TO_NUMBERS[lemma.strip()]
+                    if not extracted["min_vram_gb"]:
+                        extracted["min_vram_gb"] = number
+                    else:
+                        extracted["min_vram_gb"] += number
+                except:
+                    print(f"Warning: unknown number lemma: {lemma}.", file=sys.stderr)
 
         elif ent.label_ == "BRAND":
             val = ent.text.lower()
