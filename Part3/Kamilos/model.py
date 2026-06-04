@@ -1,7 +1,7 @@
-import pl_core_news_sm
+import pl_core_news_lg
 
 # ładowanie lokalnego modelu dla języka polskiego
-nlp = pl_core_news_sm.load()
+nlp = pl_core_news_lg.load()
 
 # dodanie reguł naprawczych do źle interpretowanych słów
 attribute_ruler = nlp.get_pipe("attribute_ruler")
