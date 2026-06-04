@@ -1,7 +1,7 @@
 from model import extract_gpu_criteria
 from data import gpu_data
 
-def rank( query:str ):
+def rank(query: str):
     crit = extract_gpu_criteria(query)
 
     scores = []
@@ -9,13 +9,12 @@ def rank( query:str ):
         score = calc_score(gpu, crit)
         scores.append(score)
 
-    sorted_df = gpu_data . copy (  )
+    sorted_df = gpu_data.copy()
     sorted_df['_key'] = scores
     sorted_df = sorted_df.sort_values(by='_key', ascending=False).drop(columns='_key')
     return sorted_df
 
-
-def calc_score( gpu, crit ) -> float:
+def calc_score(gpu, crit) -> float:
     score = 0.0
 
     if crit["brand"]:
@@ -27,8 +26,6 @@ def calc_score( gpu, crit ) -> float:
     if crit["min_vram_gb"]:
         ram_want = float(crit["min_vram_gb"])
         ram_got = float(gpu["vram_gb"])
-        print(ram_want)
-        print(ram_got)
         if ram_got >= ram_want:
             score += ram_want / ram_got
 

@@ -133,8 +133,6 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
     user_prompt = add_spaces_around_numbers(user_prompt)
     user_prompt = user_prompt.lower()
 
-    print(user_prompt)
-
     # przepuszczenie inputu użytkownika przez NLP spaCy
     doc = nlp(user_prompt)
 
@@ -146,7 +144,6 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
 
     # przejrzenie rozpoznanych przez spaCy encji
     for ent in doc.ents:
-        print(ent.lemma_)
         if ent.label_ == "VRAM":
             digit = float(ent.text.split()[0].replace(",", "."))
             if digit:
