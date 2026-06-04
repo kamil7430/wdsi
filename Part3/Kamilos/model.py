@@ -1,6 +1,6 @@
 import sys
 
-import pl_core_news_lg
+import pl_core_news_sm
 
 LEMMAS_TO_NUMBERS = {
     # 0 - 9
@@ -42,7 +42,7 @@ LEMMAS_TO_NUMBERS = {
 }
 
 # ładowanie lokalnego modelu dla języka polskiego
-nlp = pl_core_news_lg.load()
+nlp = pl_core_news_sm.load()
 
 # dodanie reguł naprawczych do źle interpretowanych słów
 attribute_ruler = nlp.get_pipe("attribute_ruler")
@@ -61,7 +61,7 @@ entity_ruler.add_patterns([
     {
         "label": "VRAM",
         "pattern": [
-            {"TEXT": {"REGEX": r"^\d+$"}},
+            {"TEXT": {"REGEX": r"^\d+(,\d+)?$"}},
             {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt", "megabajtami",
                               "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram", "megabajta", "gigabajtami",
                               "gigabajta"]}},
@@ -120,7 +120,11 @@ def add_spaces_around_numbers(string: str) -> str:
             new_str += ' '
         if string[i-1].isdigit() and string[i].isalpha():
             new_str += ' '
-        new_str += string[i]
+
+        if string[i-1].isdigit() and string[i] == '.':
+            new_str += ','
+        else:
+            new_str += string[i]
     return new_str
 
 def extract_gpu_criteria(user_prompt: str) -> dict:
@@ -128,6 +132,8 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
     user_prompt = user_prompt.strip()
     user_prompt = add_spaces_around_numbers(user_prompt)
     user_prompt = user_prompt.lower()
+
+    print(user_prompt)
 
     # przepuszczenie inputu użytkownika przez NLP spaCy
     doc = nlp(user_prompt)
@@ -140,13 +146,14 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
 
     # przejrzenie rozpoznanych przez spaCy encji
     for ent in doc.ents:
+        print(ent.lemma_)
         if ent.label_ == "VRAM":
-            digits = [int(s) for s in ent.text.split() if s.isdigit()]
-            if digits:
-                if digits[0] >= 1000:
-                    extracted["min_vram_gb"] = digits[0] // 1000
+            digit = float(ent.text.split()[0].replace(",", "."))
+            if digit:
+                if digit >= 1024.0:
+                    extracted["min_vram_gb"] = digit / 1024.0
                 else:
-                    extracted["min_vram_gb"] = digits[0]
+                    extracted["min_vram_gb"] = digit
 
         elif ent.label_ == "VRAM_TEXT":
             for lemma in ent.lemma_.split():
