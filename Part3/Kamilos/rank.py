@@ -18,15 +18,19 @@ def rank( query:str ):
 def calc_score( gpu, crit ) -> float:
     score = 0.0
 
-    brand_want = crit["brand"].lower()
-    brand_got = gpu["brand"].lower()
-    if brand_want == brand_got:
-        score += 1.0
+    if crit["brand"]:
+        brand_want = crit["brand"].lower()
+        brand_got = gpu["brand"].lower()
+        if brand_want == brand_got:
+            score += 1.0
 
-    ram_want = float(crit["min_vram_gb"])
-    ram_got = float(gpu["vram_gb"])
-    if ram_got >= ram_want:
-        score += ram_want / ram_got
+    if crit["min_vram_gb"]:
+        ram_want = float(crit["min_vram_gb"])
+        ram_got = float(gpu["vram_gb"])
+        print(ram_want)
+        print(ram_got)
+        if ram_got >= ram_want:
+            score += ram_want / ram_got
 
     cheap_want = crit["is_cheap"]
     price = gpu["price_per_hour_usd_cents"]
