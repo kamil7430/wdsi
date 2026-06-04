@@ -62,8 +62,8 @@ entity_ruler.add_patterns([
         "label": "VRAM",
         "pattern": [
             {"TEXT": {"REGEX": r"^\d+$"}},
-            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt",
-                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram", "megabajta",
+            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt", "megabajtami",
+                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram", "megabajta", "gigabajtami",
                               "gigabajta"]}},
         ],
     },
@@ -72,8 +72,8 @@ entity_ruler.add_patterns([
         "pattern": [
             {"LEMMA": {"IN": list(LEMMAS_TO_NUMBERS.keys())}},
             {"LEMMA": {"IN": list(LEMMAS_TO_NUMBERS.keys())}, "OP": "?"},
-            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt",
-                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram", "megabajta",
+            {"LOWER": {"IN": ["mega", "megabajt", "megabajty", "megabajtów", "giga", "gigabajt", "megabajtami",
+                              "gigabajty", "gigabajtów", "mb", "gb", "ram", "vram", "megabajta", "gigabajtami",
                               "gigabajta"]}},
         ],
     },
@@ -90,14 +90,23 @@ entity_ruler.add_patterns([
     {
         "label": "LOW_BUDGET",
         "pattern": [
-            {"LEMMA": {"IN": ["tać", "tani", "taniocha", "tanio", "tanie", "najtańszy", "budżetowy", "niedrogi",
-                              "ekonomiczny"]}},
+            {"LEMMA": {"IN": ["tać", "tani", "taniocha", "najtańszy", "budżetowy", "niedrogi", "ekonomiczny"]}},
         ],
     },
     {
         "label": "LOW_BUDGET",
         "pattern": [
-            {"LEMMA": {"IN": ["niski", "dobry"]}},
+            {"LOWER": {"IN": ["tani", "tania", "tanie", "taniego", "taniej", "taniemu", "tanią", "tanim", "tanich",
+                              "tanimi", "tanio", "tańszy", "tańsza", "tańsze", "tańszego", "tańszej", "tańszemu",
+                              "tańszą", "tańszym", "tańszych", "tańszymi", "najtańszy", "najtańsza", "najtańsze",
+                              "najtańszego", "najtańszej", "najtańszemu", "najtańszą", "najtańszym", "najtańszych",
+                              "najtańszymi"]}},
+        ],
+    },
+    {
+        "label": "LOW_BUDGET",
+        "pattern": [
+            {"LEMMA": {"IN": ["niski", "dobry", "okazyjny"]}},
             {"LEMMA": "cena"},
         ],
     }
