@@ -125,6 +125,7 @@ def add_spaces_around_numbers(string: str) -> str:
 
 def extract_gpu_criteria(user_prompt: str) -> dict:
     # preprocessing inputu
+    user_prompt = user_prompt.strip()
     user_prompt = add_spaces_around_numbers(user_prompt)
     user_prompt = user_prompt.lower()
 
