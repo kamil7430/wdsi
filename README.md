@@ -64,8 +64,8 @@ Collaborative project building intelligent GPU selection using NLP approaches. D
 - **model.py**:
   - Polish NLP extraction pipeline
   - Recognizes entities: VRAM specs, GPU brand (NVIDIA/AMD/Intel), budget constraints
-  - Handles written numbers in Polish ("osiem" = 8, "dwa tysiące" = 2000)
-  - Converts user queries like "Chcę 16GB taniej" → `{min_vram_gb: 16, is_cheap: True}`
+  - Handles written numbers in Polish ("osiem" = 8, "dwadzieścia cztery" = 24)
+  - Converts user queries like "Chcę 16GB tanio" → `{min_vram_gb: 16, is_cheap: True}`
   
 - **rank.py**: Ranks GPU options based on extracted criteria
 - **main.py**: Interactive CLI for GPU recommendations

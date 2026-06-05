@@ -114,18 +114,18 @@ entity_ruler.add_patterns([
 
 
 def add_spaces_around_numbers(string: str) -> str:
-    new_str = string[0]
+    new_str = [string[0]]
     for i in range(1, len(string)):
         if string[i-1].isalpha() and string[i].isdigit():
-            new_str += ' '
+            new_str.append(' ')
         if string[i-1].isdigit() and string[i].isalpha():
-            new_str += ' '
+            new_str.append(' ')
 
         if string[i-1].isdigit() and string[i] == '.':
-            new_str += ','
+            new_str.append(',')
         else:
-            new_str += string[i]
-    return new_str
+            new_str.append(string[i])
+    return "".join(new_str)
 
 def extract_gpu_criteria(user_prompt: str) -> dict:
     # preprocessing inputu
