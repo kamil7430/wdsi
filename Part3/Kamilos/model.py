@@ -114,26 +114,24 @@ entity_ruler.add_patterns([
 
 
 def add_spaces_around_numbers(string: str) -> str:
-    new_str = string[0]
+    new_str = [string[0]]
     for i in range(1, len(string)):
         if string[i-1].isalpha() and string[i].isdigit():
-            new_str += ' '
+            new_str.append(' ')
         if string[i-1].isdigit() and string[i].isalpha():
-            new_str += ' '
+            new_str.append(' ')
 
         if string[i-1].isdigit() and string[i] == '.':
-            new_str += ','
+            new_str.append(',')
         else:
-            new_str += string[i]
-    return new_str
+            new_str.append(string[i])
+    return "".join(new_str)
 
 def extract_gpu_criteria(user_prompt: str) -> dict:
     # preprocessing inputu
     user_prompt = user_prompt.strip()
     user_prompt = add_spaces_around_numbers(user_prompt)
     user_prompt = user_prompt.lower()
-
-    print(user_prompt)
 
     # przepuszczenie inputu użytkownika przez NLP spaCy
     doc = nlp(user_prompt)
@@ -146,7 +144,6 @@ def extract_gpu_criteria(user_prompt: str) -> dict:
 
     # przejrzenie rozpoznanych przez spaCy encji
     for ent in doc.ents:
-        print(ent.lemma_)
         if ent.label_ == "VRAM":
             digit = float(ent.text.split()[0].replace(",", "."))
             if digit:

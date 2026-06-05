@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-
 RELEVANT_COLUMNS = {
     "Brand": "brand",
     "Name": "gpu_model",
